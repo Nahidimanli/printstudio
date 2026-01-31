@@ -1,0 +1,26 @@
+{% extends 'web/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="section-title" style="margin-top: 2rem;">Browse All Products</h1>
+
+    <div class="grid-4">
+        {% for product in products %}
+        <div class="card">
+            <div class="card-img"
+                style="background-image: url('https://source.unsplash.com/400x300/?print,paper,{{ forloop.counter }}');">
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ product.name }}</h3>
+                <div class="card-subtitle">by {{ product.studio.business_name }}</div>
+                <div class="card-price">From ${{ product.price }}</div>
+                <a href="{% url 'customer_order' %}?service_id={{ product.id }}" class="btn btn-primary"
+                    style="width: 100%; margin-top: 10px; text-align: center;">Order Now</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>No products found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

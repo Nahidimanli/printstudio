@@ -1,0 +1,68 @@
+{% extends "web/base.html" %}
+
+{% block title %}Studio Dashboard - Service Platform{% endblock %}
+
+{% block content %}
+<h1>Studio Dashboard</h1>
+<h2>{{ user.studio_profile.business_name }}</h2>
+
+<h3>Incoming Orders</h3>
+{% if orders %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Note</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.customer.username }}</td>
+            <td>
+                <ul style="margin: 0; padding-left: 20px;">
+                    {% for item in order.items.all %}
+                    <li>{{ item.service.name }} (x{{ item.quantity }})</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>{{ order.note|default:"-" }}</td>
+            <td>${{ order.total_price }}</td>
+            <td>
+                <strong>{{ order.get_status_display }}</strong>
+            </td>
+            <td>
+                {% if order.status != 'CANCELLED' and order.status != 'COMPLETED' %}
+                <form method="post" action="{% url 'update_order_status' order.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    {% if order.status == 'RECEIVED' %}
+                    <button type="submit" name="status" value="PREPARATION">Mark In Prep</button>
+                    {% elif order.status == 'PREPARATION' %}
+                    <button type="submit" name="status" value="READY">Mark Ready</button>
+                    {% elif order.status == 'READY' %}
+                    <button type="submit" name="status" value="PICKUP">Mark Pickup</button>
+                    {% elif order.status == 'PICKUP' %}
+                    <button type="submit" name="status" value="COMPLETED">Complete</button>
+                    {% endif %}
+
+                    <button type="submit" name="status" value="CANCELLED"
+                        style="background-color: #dc3545; margin-left: 5px;">Cancel</button>
+                </form>
+                {% else %}
+                <span>-</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No orders found.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="position: relative; overflow: hidden;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <h1>Choose a Print Studio Near You, Order Online</h1>
+        <p>Business cards, posters, flyers, and more — printed by trusted local studios.</p>
+        <div style="margin-top: 30px;">
+            <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">Browse Products</a>
+            <a href="{% url 'studio_list' %}" class="btn btn-outline btn-lg" style="margin-left: 10px;">Find Nearby
+                Studios</a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title" style="text-align: center;">How It Works</h2>
+        <div class="step-grid">
+            <div class="step-card">
+                <div class="step-icon">🎨</div>
+                <h3>1. Choose a Product</h3>
+                <p>Browse our catalog of print products or upload your own design.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon">📍</div>
+                <h3>2. Select a Nearby Studio</h3>
+                <p>Compare local studios by price, distance, and rating.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon">📦</div>
+                <h3>3. Place Order & Receive</h3>
+                <p>Order online and get fast local delivery or pickup.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Products -->
+<section class="section" style="background-color: var(--light-gray);">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="section-title" style="margin-bottom: 0;">Popular Products</h2>
+            <a href="{% url 'product_list' %}"
+                style="text-decoration: none; color: var(--accent-color); font-weight: bold;">View All &rarr;</a>
+        </div>
+
+        <div class="grid-4">
+            {% for product in popular_products %}
+            <div class="card">
+                <div class="card-img"
+                    style="background-image: url('https://source.unsplash.com/400x300/?print,paper,{{ forloop.counter }}');">
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">{{ product.name }}</h3>
+                    <div class="card-subtitle">by {{ product.studio.business_name }}</div>
+                    <div class="card-price">From ${{ product.price }}</div>
+                    <a href="{% url 'customer_order' %}?service_id={{ product.id }}" class="btn btn-primary"
+                        style="width: 100%; margin-top: 10px; text-align: center;">Order Now</a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No products available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Local Studios -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Verified Print Studios</h2>
+        <div class="grid-4">
+            {% for studio in verified_studios %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">{{ studio.business_name }}</h3>
+                    <p class="card-subtitle">{{ studio.address|default:"Local Studio" }}</p>
+                    <p style="font-size: 0.9rem;">⭐ 4.8 (120 Reviews)</p>
+                    <a href="{% url 'studio_list' %}" class="btn btn-secondary"
+                        style="width: 100%; margin-top: 10px; text-align: center;">View Profile</a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No studios verified yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Segments -->
+<section class="section" style="background-color: #232f3e; color: #fff;">
+    <div class="container">
+        <div class="grid-4" style="grid-template-columns: 1fr 1fr; gap: 40px;">
+            <div>
+                <h2>For Customers</h2>
+                <ul style="line-height: 2;">
+                    <li>✅ Compare prices instantly</li>
+                    <li>✅ Choose trusted local studios</li>
+                    <li>✅ Fast local delivery</li>
+                </ul>
+                <a href="{% url 'product_list' %}" class="btn btn-primary" style="margin-top: 20px;">Start Shopping</a>
+            </div>
+            <div>
+                <h2>For Print Studios</h2>
+                <ul style="line-height: 2;">
+                    <li>✅ Get new customers</li>
+                    <li>✅ Manage orders easily</li>
+                    <li>✅ Grow your business</li>
+                </ul>
+                <a href="{% url 'become_seller' %}" class="btn btn-outline" style="margin-top: 20px;">Become a
+                    Seller</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

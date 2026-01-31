@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Print Market{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'web/css/style.css' %}">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="/" class="logo">Print Market</a>
+                <div class="nav-links">
+                    <a href="{% url 'product_list' %}">Browse Products</a>
+                    <a href="{% url 'studio_list' %}">Find Studios</a>
+                    <a href="{% url 'become_seller' %}">Become a Seller</a>
+
+                    {% if user.is_authenticated %}
+                    <span style="margin-left: 15px; color: #ccc;">
+                        Hi, <strong>{{ user.username }}</strong>
+                    </span>
+                    {% if user.role == 'STUDIO' %}
+                    <a href="{% url 'studio_dashboard' %}">Dashboard</a>
+                    {% elif user.role == 'CUSTOMER' %}
+                    <a href="{% url 'customer_order' %}">My Orders</a>
+                    {% endif %}
+                    <a href="{% url 'web_logout' %}">Logout</a>
+                    {% else %}
+                    <a href="{% url 'web_login' %}">Login</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" style="min-height: 80vh; padding-top: 20px;">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}success{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Print Market. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

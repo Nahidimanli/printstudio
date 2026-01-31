@@ -1,0 +1,114 @@
+{% extends "web/base.html" %}
+
+{% block title %}Create Order - Service Platform{% endblock %}
+
+{% block content %}
+<style>
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        display: inline-block;
+    }
+
+    .status-received {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+
+    .status-preparation {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-ready {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
+    .status-pickup {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+<h1>Create Application Order</h1>
+
+<div style="margin-bottom: 30px;">
+    <h3>Your Active Orders</h3>
+    {% if orders %}
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Studio</th>
+                <th>Status</th>
+                <th>Total Price</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.studio.business_name }}</td>
+                <td>
+                    <span class="status-badge status-{{ order.status|lower }}">
+                        {{ order.get_status_display }}
+                    </span>
+                </td>
+                <td>${{ order.total_price }}</td>
+                <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No orders yet.</p>
+    {% endif %}
+</div>
+
+<hr>
+
+<h3>New Order</h3>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="service">Select Service</label>
+        <select name="service_id" id="service" required>
+            <option value="">-- Choose a Service --</option>
+            {% for studio in studios %}
+            <optgroup label="{{ studio.business_name }}">
+                {% for service in studio.services.all %}
+                <option value="{{ service.id }}">
+                    {{ service.name }} - ${{ service.price }} ({{ service.duration_minutes }} min)
+                </option>
+                {% endfor %}
+            </optgroup>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+    </div>
+
+    <div class="form-group">
+        <label for="note">Note (Optional)</label>
+        <input type="text" name="note" id="note" placeholder="Special requests...">
+    </div>
+
+    <button type="submit">Place Order</button>
+</form>
+{% endblock %}

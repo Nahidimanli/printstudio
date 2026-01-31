@@ -1,0 +1,34 @@
+{% extends 'web/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div style="text-align: center; margin-top: 2rem;">
+        <h1>Hesap Türünüzü Seçin</h1>
+        <p>Devam etmek için lütfen platformu nasıl kullanacağınızı belirtin.</p>
+    </div>
+
+    <div class="role-selection-container">
+        <!-- Customer Option -->
+        <div class="role-card customer" onclick="document.getElementById('form-customer').submit();">
+            <h2>Müşteriyim</h2>
+            <p>Baskı hizmeti almak, ürünleri incelemek ve matbaalardan sipariş vermek istiyorum.</p>
+            <form id="form-customer" method="POST" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="CUSTOMER">
+            </form>
+            <span class="btn btn-primary">Müşteri Olarak Başla</span>
+        </div>
+
+        <!-- Studio Option -->
+        <div class="role-card studio" onclick="document.getElementById('form-studio').submit();">
+            <h2>Matbaa / Satıcıyım</h2>
+            <p>Kendi stüdyomu yönetmek, hizmetlerimi listelemek ve sipariş almak istiyorum.</p>
+            <form id="form-studio" method="POST" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="STUDIO">
+            </form>
+            <span class="btn btn-outline">Satıcı Olarak Başla</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

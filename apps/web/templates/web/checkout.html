@@ -1,0 +1,65 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Ödeme - Baskı Pazarı{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 40px; margin-bottom: 60px;">
+    <h1 class="section-title">Ödeme ve Onay</h1>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+        <!-- Order Details -->
+        <div>
+            <div
+                style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">Teslimat Bilgileri</h3>
+                <p><strong>{{ user.get_full_name|default:user.username }}</strong></p>
+                <p>Email: {{ user.email }}</p>
+                <!-- Address form would go here -->
+                <p style="color: #666; font-style: italic; margin-top: 10px;">Varsayılan adresiniz kullanılacaktır.</p>
+            </div>
+
+            <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+                <h3 style="margin-bottom: 15px;">Ödeme Yöntemi</h3>
+                <div
+                    style="padding: 15px; border: 1px solid var(--secondary-color); border-radius: 4px; background: #eef6fc;">
+                    <strong>Kredi Kartı</strong> (Test Modu - Kart bilgisi gerekmez)
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div>
+            <div style="background: #f8f9fa; padding: 24px; border-radius: 8px;">
+                <h3 style="margin-bottom: 20px; font-size: 20px;">Sipariş Özeti</h3>
+
+                {% for item in cart %}
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+                    <span>{{ item.quantity }}x {{ item.name|truncatechars:15 }}</span>
+                    <span>{{ item.total_price }} TL</span>
+                </div>
+                {% endfor %}
+
+                <hr style="margin: 15px 0;">
+
+                <div
+                    style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 600; font-size: 18px;">
+                    <span>Toplam</span>
+                    <span>{{ cart.get_total_price }} TL</span>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; text-align: center; display: block; padding: 12px; margin-top: 20px;">
+                        Siparişi Onayla
+                    </button>
+                </form>
+                <div style="margin-top: 15px; font-size: 12px; color: #666; text-align: center;">
+                    "Siparişi Onayla" butonuna basarak Mesafeli Satış Sözleşmesi'ni kabul etmiş olursunuz.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

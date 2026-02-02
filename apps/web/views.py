@@ -5,6 +5,9 @@ from django.contrib import messages
 from django.db import transaction
 from django.views import View
 from django.utils.decorators import method_decorator
+from django.db.models import Case, When
+from django.views.decorators.http import require_POST
+from apps.orders.cart import Cart
 
 from apps.users.models import User
 from apps.studios.models import StudioProfile, Service
@@ -46,15 +49,60 @@ class LandingPageView(View):
     def get(self, request):
         popular_products = Service.objects.filter(is_active=True).select_related('studio')[:4]
         verified_studios = StudioProfile.objects.all()[:4]
+        
+        # Recently Viewed Logic
+        recent_ids = request.session.get('recently_viewed', [])
+        # Preserve order
+        recently_viewed = []
+        if recent_ids:
+            preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(recent_ids)])
+            recently_viewed = Service.objects.filter(id__in=recent_ids).order_by(preserved)
+
         return render(request, 'web/landing.html', {
             'popular_products': popular_products,
-            'verified_studios': verified_studios
+            'verified_studios': verified_studios,
+            'recently_viewed': recently_viewed
         })
 
 class ProductListView(View):
     def get(self, request):
         products = Service.objects.filter(is_active=True).select_related('studio')
+        
+        # Filtering
+        query = request.GET.get('q')
+        cat = request.GET.get('category')
+        min_p = request.GET.get('min_price')
+        max_p = request.GET.get('max_price')
+
+        if query:
+            products = products.filter(name__icontains=query)
+        
+        # Note: 'Category' is hardcoded in frontend for now, but we can filter by name/desc if needed
+        # or assuming we will add a Category model. For now let's mock it by filtering name.
+        if cat:
+             products = products.filter(name__icontains=cat)
+
+        if min_p:
+            products = products.filter(price__gte=min_p)
+        if max_p:
+            products = products.filter(price__lte=max_p)
+
         return render(request, 'web/product_list.html', {'products': products})
+
+class ProductDetailView(View):
+    def get(self, request, id):
+        service = get_object_or_404(Service, id=id)
+        
+        # Recently Viewed Logic
+        recently_viewed = request.session.get('recently_viewed', [])
+        if id not in recently_viewed:
+            recently_viewed.insert(0, id) # Add to beginning
+            if len(recently_viewed) > 5: # Keep last 5
+                recently_viewed.pop()
+        request.session['recently_viewed'] = recently_viewed
+        
+        return render(request, 'web/service_detail.html', {'service': service})
+
 
 class StudioListView(View):
     def get(self, request):
@@ -169,3 +217,75 @@ def update_order_status(request, order_id):
             messages.error(request, "Permission denied.")
             
     return redirect('studio_dashboard')
+
+@require_POST
+def cart_add(request, service_id):
+    cart = Cart(request)
+    service = get_object_or_404(Service, id=service_id)
+    cart.add(service=service)
+    messages.success(request, f"{service.name} sepete eklendi.")
+    return redirect('cart_detail')
+
+def cart_remove(request, service_id):
+    cart = Cart(request)
+    service = get_object_or_404(Service, id=service_id)
+    cart.remove(service)
+    return redirect('cart_detail')
+
+def cart_detail(request):
+    cart = Cart(request)
+    return render(request, 'web/cart_detail.html', {'cart': cart})
+
+@method_decorator(login_required, name='dispatch')
+class CheckoutView(View):
+    def get(self, request):
+        cart = Cart(request)
+        if not cart.cart:
+            messages.warning(request, "Sepetiniz boş.")
+            return redirect('product_list')
+        return render(request, 'web/checkout.html', {'cart': cart})
+
+    def post(self, request):
+        cart = Cart(request)
+        if not cart.cart:
+            return redirect('product_list')
+        
+        # Simplified checkout logic: Create one order per studio or one big order?
+        # The existing model links Order to ONE studio.
+        # So if we have multiple studios, we need multiple orders.
+        
+        # Group items by studio
+        items_by_studio = {} 
+        for item in cart:
+            studio_id = item['service'].studio.id
+            if studio_id not in items_by_studio:
+                items_by_studio[studio_id] = []
+            items_by_studio[studio_id].append(item)
+            
+        with transaction.atomic():
+            for studio_id, items in items_by_studio.items():
+                studio_total = sum(item['total_price'] for item in items)
+                # We need to fetch Studio instance
+                # Quick hack: fetch one service to get studio object
+                studio = items[0]['service'].studio
+                
+                order = Order.objects.create(
+                    customer=request.user,
+                    studio=studio,
+                    total_price=studio_total,
+                    note="Mobil/Web Siparişi"
+                )
+                
+                for item in items:
+                    OrderItem.objects.create(
+                        order=order,
+                        service=item['service'],
+                        price=item['price'],
+                        quantity=item['quantity']
+                    )
+        
+        cart.clear()
+        messages.success(request, "Siparişiniz alındı! Teşekkür ederiz.")
+        return redirect('customer_order')
+
+

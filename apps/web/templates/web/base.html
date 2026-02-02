@@ -5,40 +5,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Print Market{% endblock %}</title>
+    <title>{% block title %}Baskı Pazarı - Yakınınızdaki Matbaayı Bulun{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <link rel="stylesheet" href="{% static 'web/css/style.css' %}">
 </head>
 
 <body>
-    <header>
-        <div class="container">
-            <nav>
-                <a href="/" class="logo">Print Market</a>
-                <div class="nav-links">
-                    <a href="{% url 'product_list' %}">Browse Products</a>
-                    <a href="{% url 'studio_list' %}">Find Studios</a>
-                    <a href="{% url 'become_seller' %}">Become a Seller</a>
+    <!-- 1️⃣ TOP BAR / HEADER -->
+    <header class="main-header">
+        <div class="container header-grid">
+            <!-- Top Left: Logo -->
+            <div class="header-logo">
+                <a href="/" class="logo">Baskı Pazarı</a>
+            </div>
 
-                    {% if user.is_authenticated %}
-                    <span style="margin-left: 15px; color: #ccc;">
-                        Hi, <strong>{{ user.username }}</strong>
-                    </span>
-                    {% if user.role == 'STUDIO' %}
-                    <a href="{% url 'studio_dashboard' %}">Dashboard</a>
-                    {% elif user.role == 'CUSTOMER' %}
-                    <a href="{% url 'customer_order' %}">My Orders</a>
-                    {% endif %}
-                    <a href="{% url 'web_logout' %}">Logout</a>
-                    {% else %}
-                    <a href="{% url 'web_login' %}">Login</a>
-                    {% endif %}
+            <!-- Center: Search & Sub-nav -->
+            <div class="header-center">
+                <div class="search-bar-large">
+                    <input type="text" placeholder="Ne arıyorsunuz?">
+                    <button class="search-btn">🔍</button>
                 </div>
-            </nav>
+                <div class="category-shortcut-links">
+                    <a href="{% url 'product_list' %}?category=Kartvizit">Kart</a>
+                    <a href="{% url 'product_list' %}?category=Poster">Poster</a>
+                    <a href="{% url 'product_list' %}?category=Baski">Baskı Ürünleri</a>
+                    <a href="{% url 'product_list' %}?category=Sticker">Sticker</a>
+                    <a href="{% url 'product_list' %}?category=Davetiye">Davetiye</a>
+                    <a href="{% url 'product_list' %}">Diğer Ürünler</a>
+                </div>
+            </div>
+
+            <!-- Right side icons / buttons -->
+            <div class="header-right">
+                <div class="icon-btn">
+                    <span>🇹🇷 TR</span>
+                </div>
+                <a href="{% url 'become_seller' %}" class="icon-btn">
+                    <span>🏢 Bayi</span>
+                </a>
+                <a href="#" class="icon-btn">
+                    <span>❤️</span>
+                </a>
+                <a href="{% url 'cart_detail' %}" class="icon-btn relative">
+                    <span>🛒</span>
+                    {% if request.session.cart %}
+                    <span class="badge">{{ request.session.cart|length }}</span>
+                    {% endif %}
+                </a>
+                {% if user.is_authenticated %}
+                <a href="{% if user.role == 'STUDIO' %}{% url 'studio_dashboard' %}{% else %}{% url 'customer_order' %}{% endif %}"
+                    class="icon-btn">
+                    <span>👤</span>
+                </a>
+                {% else %}
+                <a href="{% url 'web_login' %}" class="icon-btn">
+                    <span>👤</span>
+                </a>
+                {% endif %}
+            </div>
         </div>
     </header>
 
-    <div class="container" style="min-height: 80vh; padding-top: 20px;">
+    <div class="container" style="min-height: 60vh; padding-top: 20px;">
         {% if messages %}
         {% for message in messages %}
         <div class="alert {% if message.tags == 'success' %}success{% endif %}">
@@ -50,9 +84,46 @@
         {% block content %}{% endblock %}
     </div>
 
+    <!-- 11. Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Print Market. Tüm hakları saklıdır.</p>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Bizi Tanıyın</h4>
+                    <ul>
+                        <li><a href="#">Hakkımızda</a></li>
+                        <li><a href="#">Kariyer</a></li>
+                        <li><a href="#">Basın</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Yardım & Destek</h4>
+                    <ul>
+                        <li><a href="#">Sipariş Takibi</a></li>
+                        <li><a href="#">İade ve Değişim</a></li>
+                        <li><a href="#">Sıkça Sorulan Sorular</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Ürünler</h4>
+                    <ul>
+                        <li><a href="#">Tüm Kategoriler</a></li>
+                        <li><a href="#">Kampanyalar</a></li>
+                        <li><a href="#">Yeni Ürünler</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Satıcılar İçin</h4>
+                    <ul>
+                        <li><a href="{% url 'become_seller' %}">Satıcı Olun</a></li>
+                        <li><a href="#">Satıcı Paneli</a></li>
+                        <li><a href="#">Başarı Hikayeleri</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Baskı Pazarı. Tüm hakları saklıdır. | Gizlilik Politikası | Kullanım Koşulları</p>
+            </div>
         </div>
     </footer>
 </body>

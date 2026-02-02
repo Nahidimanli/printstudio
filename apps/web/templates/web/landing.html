@@ -2,119 +2,106 @@
 {% load static %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero" style="position: relative; overflow: hidden;">
-    <div class="container" style="position: relative; z-index: 2;">
-        <h1>Choose a Print Studio Near You, Order Online</h1>
-        <p>Business cards, posters, flyers, and more — printed by trusted local studios.</p>
-        <div style="margin-top: 30px;">
-            <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">Browse Products</a>
-            <a href="{% url 'studio_list' %}" class="btn btn-outline btn-lg" style="margin-left: 10px;">Find Nearby
-                Studios</a>
+<!-- 2️⃣ MAP SECTION -->
+<div class="map-section" id="map">
+    <a href="{% url 'studio_list' %}" class="map-overlay-btn">Yakınımdaki Matbaaları Bul</a>
+</div>
+
+<!-- 3️⃣ “EXPLORE ALL CATEGORY” SECTION -->
+<section class="categories-section">
+    <div class="container">
+        <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 10px;">Tüm Kategorileri Keşfet</h2>
+
+        <div class="category-scroll-container">
+            <!-- Example Categories -->
+            <a href="?category=Kartvizit" class="category-circle">
+                <span style="font-size: 24px;">📇</span>
+                <span>Kartvizit</span>
+            </a>
+            <a href="?category=Poster" class="category-circle">
+                <span style="font-size: 24px;">🖼️</span>
+                <span>Poster</span>
+            </a>
+            <a href="?category=Tekstil" class="category-circle">
+                <span style="font-size: 24px;">👕</span>
+                <span>Tekstil</span>
+            </a>
+            <a href="?category=Etiket" class="category-circle">
+                <span style="font-size: 24px;">🏷️</span>
+                <span>Etiket</span>
+            </a>
+            <a href="?category=Kutu" class="category-circle">
+                <span style="font-size: 24px;">📦</span>
+                <span>Kutu</span>
+            </a>
+            <a href="?category=Tabela" class="category-circle">
+                <span style="font-size: 24px;">🏙️</span>
+                <span>Tabela</span>
+            </a>
+
+            <div class="scroll-indicator">&gt;</div>
         </div>
     </div>
 </section>
 
-<!-- How It Works -->
-<section class="section">
+<!-- 4️⃣ “YOUR RECENTLY VIEWED” SECTION -->
+<section class="recently-viewed-section">
     <div class="container">
-        <h2 class="section-title" style="text-align: center;">How It Works</h2>
-        <div class="step-grid">
-            <div class="step-card">
-                <div class="step-icon">🎨</div>
-                <h3>1. Choose a Product</h3>
-                <p>Browse our catalog of print products or upload your own design.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-icon">📍</div>
-                <h3>2. Select a Nearby Studio</h3>
-                <p>Compare local studios by price, distance, and rating.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-icon">📦</div>
-                <h3>3. Place Order & Receive</h3>
-                <p>Order online and get fast local delivery or pickup.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Popular Products -->
-<section class="section" style="background-color: var(--light-gray);">
-    <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 class="section-title" style="margin-bottom: 0;">Popular Products</h2>
-            <a href="{% url 'product_list' %}"
-                style="text-decoration: none; color: var(--accent-color); font-weight: bold;">View All &rarr;</a>
-        </div>
+        <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 20px;">Son Görüntülenenler</h2>
 
         <div class="grid-4">
-            {% for product in popular_products %}
-            <div class="card">
+            {% for product in recently_viewed %}
+            <div class="card" style="position: relative;">
+                <div class="card-heart">❤️</div>
                 <div class="card-img"
-                    style="background-image: url('https://source.unsplash.com/400x300/?print,paper,{{ forloop.counter }}');">
+                    style="background-image: url('https://source.unsplash.com/400x300/?print,{{ forloop.counter }}');">
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">{{ product.name }}</h3>
-                    <div class="card-subtitle">by {{ product.studio.business_name }}</div>
-                    <div class="card-price">From ${{ product.price }}</div>
-                    <a href="{% url 'customer_order' %}?service_id={{ product.id }}" class="btn btn-primary"
-                        style="width: 100%; margin-top: 10px; text-align: center;">Order Now</a>
+                    <div class="card-price" style="font-size: 18px;">{{ product.price }} TL</div>
                 </div>
             </div>
             {% empty %}
-            <p>No products available yet.</p>
+            <!-- Fallback if empty for design demo -->
+            <p style="color: #888;">Henüz bir ürün görüntülemediniz. Popüler ürünlere göz atın:</p>
             {% endfor %}
-        </div>
-    </div>
-</section>
 
-<!-- Local Studios -->
-<section class="section">
-    <div class="container">
-        <h2 class="section-title">Verified Print Studios</h2>
-        <div class="grid-4">
-            {% for studio in verified_studios %}
-            <div class="card">
+            {% if not recently_viewed %}
+            {% for product in popular_products %}
+            <div class="card" style="position: relative;">
+                <div class="card-heart">❤️</div>
+                <div class="card-img"
+                    style="background-image: url('https://source.unsplash.com/400x300/?print,{{ forloop.counter }}');">
+                </div>
                 <div class="card-body">
-                    <h3 class="card-title">{{ studio.business_name }}</h3>
-                    <p class="card-subtitle">{{ studio.address|default:"Local Studio" }}</p>
-                    <p style="font-size: 0.9rem;">⭐ 4.8 (120 Reviews)</p>
-                    <a href="{% url 'studio_list' %}" class="btn btn-secondary"
-                        style="width: 100%; margin-top: 10px; text-align: center;">View Profile</a>
+                    <h3 class="card-title">{{ product.name }}</h3>
+                    <div class="card-price" style="font-size: 18px;">{{ product.price }} TL</div>
+                    <a href="{% url 'product_detail' product.id %}" style="position: absolute; inset: 0;"></a>
                 </div>
             </div>
-            {% empty %}
-            <p>No studios verified yet.</p>
             {% endfor %}
+            {% endif %}
         </div>
     </div>
 </section>
 
-<!-- Segments -->
-<section class="section" style="background-color: #232f3e; color: #fff;">
-    <div class="container">
-        <div class="grid-4" style="grid-template-columns: 1fr 1fr; gap: 40px;">
-            <div>
-                <h2>For Customers</h2>
-                <ul style="line-height: 2;">
-                    <li>✅ Compare prices instantly</li>
-                    <li>✅ Choose trusted local studios</li>
-                    <li>✅ Fast local delivery</li>
-                </ul>
-                <a href="{% url 'product_list' %}" class="btn btn-primary" style="margin-top: 20px;">Start Shopping</a>
-            </div>
-            <div>
-                <h2>For Print Studios</h2>
-                <ul style="line-height: 2;">
-                    <li>✅ Get new customers</li>
-                    <li>✅ Manage orders easily</li>
-                    <li>✅ Grow your business</li>
-                </ul>
-                <a href="{% url 'become_seller' %}" class="btn btn-outline" style="margin-top: 20px;">Become a
-                    Seller</a>
-            </div>
-        </div>
-    </div>
-</section>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var map = L.map('map').setView([41.0082, 28.9784], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        fetch("{% url 'studio_map_api' %}")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(studio => {
+                    if (studio.lat && studio.lng) {
+                        L.marker([studio.lat, studio.lng]).addTo(map)
+                            .bindPopup(`<strong>${studio.name}</strong><br><a href="${studio.url}">Profili Gör</a>`);
+                    }
+                });
+            });
+    });
+</script>
 {% endblock %}

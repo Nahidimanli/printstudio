@@ -1,0 +1,54 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ studio.business_name }} - Baskı Pazarı{% endblock %}
+
+{% block content %}
+<div class="studio-header" style="margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+    <div class="container">
+        <div style="display: flex; align-items: start; gap: 30px;">
+            <div
+                style="width: 120px; height: 120px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                🏢
+            </div>
+            <div style="flex: 1;">
+                <h1 style="font-size: 32px; margin-bottom: 10px;">{{ studio.business_name }}</h1>
+                <p style="color: #666; margin-bottom: 15px;">{{ studio.address|default:"Adres bilgisi girilmemiş." }}
+                </p>
+                <div style="margin-bottom: 15px;">
+                    <span style="color: #f1c40f; font-weight: bold;">⭐ 4.8</span>
+                    <span style="color: #999;">(124 Değerlendirme)</span>
+                </div>
+                <p>{{ studio.description|default:"Bu matbaa için henüz açıklama girilmemiş." }}</p>
+            </div>
+            <div>
+                <button class="btn btn-outline">İletişime Geç</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="section-title">Hizmetler</h2>
+    <div class="grid-4">
+        {% for service in services %}
+        <div class="card">
+            <div class="card-img"
+                style="background-image: url('https://source.unsplash.com/400x300/?printing,{{ forloop.counter }}');">
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ service.name }}</h3>
+                <p class="card-subtitle">{{ service.description|truncatechars:60 }}</p>
+                <div class="card-price">{{ service.price }} TL'den başlayan fiyatlarla</div>
+                <div style="margin-top: 5px; font-size: 13px; color: #666;">⏱️ {{ service.duration_minutes }} dk. süre
+                </div>
+                <a href="{% url 'customer_order' %}?service_id={{ service.id }}" class="btn btn-primary"
+                    style="width: 100%; margin-top: 12px; display: block;">Sipariş Ver</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>Bu matbaa henüz hizmet listelemiyor.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

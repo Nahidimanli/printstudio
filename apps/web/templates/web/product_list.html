@@ -1,26 +1,73 @@
 {% extends 'web/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container">
-    <h1 class="section-title" style="margin-top: 2rem;">Browse All Products</h1>
+<div class="container" style="margin-top: 2rem;">
+    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 30px;">
 
-    <div class="grid-4">
-        {% for product in products %}
-        <div class="card">
-            <div class="card-img"
-                style="background-image: url('https://source.unsplash.com/400x300/?print,paper,{{ forloop.counter }}');">
+        <!-- Sidebar Filters -->
+        <aside>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                <h3 style="font-size: 18px; margin-bottom: 20px;">Filtrele</h3>
+
+                <form method="get">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Arama</label>
+                        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Ürün ara..."
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Kategoriler</label>
+                        <ul style="list-style: none;">
+                            <li style="margin-bottom: 5px;"><a href="?category=Kartvizit">Kartvizit</a></li>
+                            <li style="margin-bottom: 5px;"><a href="?category=Broşür">Broşür & El İlanı</a></li>
+                            <li style="margin-bottom: 5px;"><a href="?category=Poster">Poster</a></li>
+                            <li style="margin-bottom: 5px;"><a href="?category=Sticker">Sticker</a></li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Fiyat Aralığı</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}"
+                                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <input type="number" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}"
+                                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Filtrele</button>
+                    <a href="{% url 'product_list' %}"
+                        style="display: block; text-align: center; margin-top: 10px; font-size: 13px;">Temizle</a>
+                </form>
             </div>
-            <div class="card-body">
-                <h3 class="card-title">{{ product.name }}</h3>
-                <div class="card-subtitle">by {{ product.studio.business_name }}</div>
-                <div class="card-price">From ${{ product.price }}</div>
-                <a href="{% url 'customer_order' %}?service_id={{ product.id }}" class="btn btn-primary"
-                    style="width: 100%; margin-top: 10px; text-align: center;">Order Now</a>
+        </aside>
+
+        <!-- Product Grid -->
+        <main>
+            <h1 class="section-title" style="margin-top: 0;">Tüm Hizmetler</h1>
+            <p style="margin-bottom: 20px; color: #666;">{{ products.count }} sonuç bulundu.</p>
+
+            <div class="grid-4" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+                {% for product in products %}
+                <div class="card">
+                    <div class="card-img"
+                        style="background-image: url('https://source.unsplash.com/400x300/?print,paper,{{ forloop.counter }}');">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ product.name }}</h3>
+                        <div class="card-subtitle">{{ product.studio.business_name }}</div>
+                        <div class="card-price">{{ product.price }} TL</div>
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline"
+                            style="width: 100%; margin-top: 10px; text-align: center;">Detaylar</a>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Aradığınız kriterlere uygun hizmet bulunamadı.</p>
+                {% endfor %}
             </div>
-        </div>
-        {% empty %}
-        <p>No products found.</p>
-        {% endfor %}
+        </main>
     </div>
 </div>
 {% endblock %}

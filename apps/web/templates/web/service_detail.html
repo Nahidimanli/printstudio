@@ -1,0 +1,52 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ service.name }} - Baskı Pazarı{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 40px; margin-bottom: 60px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <!-- Left: Image -->
+        <div
+            style="background-color: #eee; border-radius: 8px; height: 400px; background-image: url('https://source.unsplash.com/600x400/?printing,paper'); background-size: cover; background-position: center;">
+        </div>
+
+        <!-- Right: Details -->
+        <div>
+            <h1 style="font-size: 36px; margin-bottom: 10px;">{{ service.name }}</h1>
+            <div style="margin-bottom: 20px;">
+                <a href="{% url 'studio_detail' service.studio.id %}"
+                    style="text-decoration: underline; color: #666; font-weight: 500;">
+                    {{ service.studio.business_name }}
+                </a>
+            </div>
+
+            <div style="font-size: 28px; font-weight: 700; color: #000; margin-bottom: 20px;">
+                {{ service.price }} TL
+                <span style="font-size: 14px; color: #666; font-weight: normal;">/ Adet</span>
+            </div>
+
+            <p style="line-height: 1.6; color: #444; margin-bottom: 30px;">
+                {{ service.description|default:"Bu hizmet için detaylı açıklama girilmemiş." }}
+            </p>
+
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 10px;">⏱️ <strong>Tahmini Süre:</strong> {{ service.duration_minutes }}
+                        Dakika</li>
+                    <li style="margin-bottom: 10px;">📦 <strong>Teslimat:</strong> Mağazadan Teslim veya Kargo</li>
+                    <li>✅ <strong>Kalite Garantisi</strong></li>
+                </ul>
+            </div>
+
+            <form action="{% url 'cart_add' service.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; padding: 15px; font-size: 18px;">Sepete Ekle</button>
+            </form>
+            <p style="margin-top: 10px; font-size: 12px; color: #888; text-align: center;">Güvenli ödeme ve müşteri
+                koruması altındasınız.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -19,55 +19,60 @@
 <body>
     <!-- 1️⃣ TOP BAR / HEADER -->
     <header class="main-header">
-        <div class="container header-grid">
-            <!-- Top Left: Logo -->
-            <div class="header-logo">
-                <a href="/" class="logo">Baskı Pazarı</a>
-            </div>
+        <div class="container is-flex-column">
+            <!-- Top Row: Logo, Search, Icons -->
+            <div class="header-top">
+                <!-- Top Left: Logo -->
+                <div class="header-logo">
+                    <a href="/" class="logo">Baskı Pazarı</a>
+                </div>
 
-            <!-- Center: Search & Sub-nav -->
-            <div class="header-center">
-                <div class="search-bar-large">
-                    <input type="text" placeholder="Ne arıyorsunuz?">
-                    <button class="search-btn">🔍</button>
+                <!-- Center: Search -->
+                <div class="header-search">
+                    <div class="search-bar-large">
+                        <input type="text" placeholder="Ne arıyorsunuz?">
+                        <button class="search-btn">🔍</button>
+                    </div>
                 </div>
-                <div class="category-shortcut-links">
-                    <a href="{% url 'product_list' %}?category=Kartvizit">Kart</a>
-                    <a href="{% url 'product_list' %}?category=Poster">Poster</a>
-                    <a href="{% url 'product_list' %}?category=Baski">Baskı Ürünleri</a>
-                    <a href="{% url 'product_list' %}?category=Sticker">Sticker</a>
-                    <a href="{% url 'product_list' %}?category=Davetiye">Davetiye</a>
-                    <a href="{% url 'product_list' %}">Diğer Ürünler</a>
-                </div>
-            </div>
 
-            <!-- Right side icons / buttons -->
-            <div class="header-right">
-                <div class="icon-btn">
-                    <span>🇹🇷 TR</span>
-                </div>
-                <a href="{% url 'become_seller' %}" class="icon-btn">
-                    <span>🏢 Bayi</span>
-                </a>
-                <a href="#" class="icon-btn">
-                    <span>❤️</span>
-                </a>
-                <a href="{% url 'cart_detail' %}" class="icon-btn relative">
-                    <span>🛒</span>
-                    {% if request.session.cart %}
-                    <span class="badge">{{ request.session.cart|length }}</span>
+                <!-- Right side icons / buttons -->
+                <div class="header-right">
+                    <div class="icon-btn-pill">
+                        <span>🇹🇷 Dil</span>
+                    </div>
+                    <a href="{% url 'become_seller' %}" class="icon-btn-pill">
+                        <span>🏢 Bayi Ol</span>
+                    </a>
+                    <a href="#" class="icon-btn-pill">
+                        <span>❤️ Favoriler</span>
+                    </a>
+                    <a href="{% url 'cart_detail' %}" class="icon-btn-pill relative">
+                        <span>🛒 Sepet</span>
+                        {% if request.session.cart %}
+                        <span class="badge">{{ request.session.cart|length }}</span>
+                        {% endif %}
+                    </a>
+                    {% if user.is_authenticated %}
+                    <a href="{% if user.role == 'STUDIO' %}{% url 'studio_dashboard' %}{% else %}{% url 'customer_order' %}{% endif %}"
+                        class="icon-btn-pill">
+                        <span>👤 Hesabım</span>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'web_login' %}" class="icon-btn-pill">
+                        <span>👤 Giriş Yap</span>
+                    </a>
                     {% endif %}
-                </a>
-                {% if user.is_authenticated %}
-                <a href="{% if user.role == 'STUDIO' %}{% url 'studio_dashboard' %}{% else %}{% url 'customer_order' %}{% endif %}"
-                    class="icon-btn">
-                    <span>👤</span>
-                </a>
-                {% else %}
-                <a href="{% url 'web_login' %}" class="icon-btn">
-                    <span>👤</span>
-                </a>
-                {% endif %}
+                </div>
+            </div>
+
+            <!-- Bottom Row: Categories -->
+            <div class="category-shortcut-links full-width">
+                <a href="{% url 'product_list' %}?category=Kartvizit">Kartvizit</a>
+                <a href="{% url 'product_list' %}?category=Poster">Poster</a>
+                <a href="{% url 'product_list' %}?category=Baski">Baskı Ürünleri</a>
+                <a href="{% url 'product_list' %}?category=Sticker">Sticker</a>
+                <a href="{% url 'product_list' %}?category=Davetiye">Davetiye</a>
+                <a href="{% url 'product_list' %}">Diğer Ürünler</a>
             </div>
         </div>
     </header>

@@ -8,7 +8,7 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
         <!-- Left: Image -->
         <div
-            style="background-color: #eee; border-radius: 8px; height: 400px; background-image: url('https://source.unsplash.com/600x400/?printing,paper'); background-size: cover; background-position: center;">
+            style="background-color: #eee; border-radius: 8px; height: 400px; background-image: url('{% if service.image %}{{ service.image.url }}{% else %}https://source.unsplash.com/600x400/?printing,paper{% endif %}'); background-size: cover; background-position: center;">
         </div>
 
         <!-- Right: Details -->

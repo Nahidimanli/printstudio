@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.views import View
 from django.utils.decorators import method_decorator
-from django.db.models import Case, When
+from django.db.models import Case, When, F
 from django.views.decorators.http import require_POST
 from apps.orders.cart import Cart
 
@@ -47,8 +47,15 @@ class WebLoginView(View):
 
 class LandingPageView(View):
     def get(self, request):
-        popular_products = Service.objects.filter(is_active=True).select_related('studio')[:4]
-        verified_studios = StudioProfile.objects.all()[:4]
+        popular_products = Service.objects.filter(is_active=True).select_related('studio').order_by('-created_at')[:4]
+        # Fetch discounted products where discount_price is present and less than original price
+        discounted_products = Service.objects.filter(
+            is_active=True, 
+            discount_price__isnull=False, 
+            discount_price__lt=F('price')
+        ).select_related('studio').order_by('-created_at')[:4]
+        
+        verified_studios = StudioProfile.objects.all().order_by('-created_at')[:20] # Increased limit for map/list
         
         # Recently Viewed Logic
         recent_ids = request.session.get('recently_viewed', [])
@@ -60,6 +67,7 @@ class LandingPageView(View):
 
         return render(request, 'web/landing.html', {
             'popular_products': popular_products,
+            'discounted_products': discounted_products,
             'verified_studios': verified_studios,
             'recently_viewed': recently_viewed
         })
